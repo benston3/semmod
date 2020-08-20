@@ -1,3 +1,20 @@
+Several methods of extracting semantic information:
+
+1. Vector Space Model (Salton, Wong & Yang, 1975)
+2. Latent Semantic Analysis (Martin & Berry, 2007)
+3. the topics model (Griffiths & Steyvers, 2002)
+4. Non-negative matrix factorization (Lee & Seung, 1999,
+Ge & Iwata, 2002)
+5. Sparse Non-negative matrix factorization (Shashua &
+Hazan, 2005)
+6. Independent Components Analysis (Isbell & Viola
+1998)
+7. Sparse ICA (Bronstein, Bronstein, Zibulevsky & Zeevi,
+2005)
+8. Syntagmatic Paradigmatic model (Dennis, 2005)
+9. Constructed Semantics Model (Kwantes, 2005)
+
+
 To install on Linux:
 Open a terminal, and enter the following commands.
 > sudo python setup.py install
