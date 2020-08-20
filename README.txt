@@ -1,3 +1,5 @@
+# Semantics Models (semmod)
+
 Several methods of extracting semantic information:
 
 1. Vector Space Model (Salton, Wong & Yang, 1975)
