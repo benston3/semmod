@@ -1,0 +1,49 @@
+#!/usr/bin/python
+import sys,string
+from optparse import OptionParser
+
+# Set up the option parser
+
+parser = OptionParser()
+parser.add_option("-r", "--rank", type="int", help="Specify the rank of the words to keep.", default=sys.maxint)
+parser.add_option("-v", "--vocab_file", type="string", help="Specify the vocab file.", default="/home/sjdennis/bin/vocab.txt")
+
+(options, args) = parser.parse_args()
+
+frequentWords = [x[0:-1] for x in open(options.vocab_file).readlines()]
+if len(frequentWords) > options.rank:
+	frequentWords = frequentWords[0:options.rank]
+frequentWords = {}.fromkeys(frequentWords)
+
+prefixes = [] #[x[0:-2] for x in open("prefixes").readlines()]
+suffixes = [x[0:-2] for x in open("/home/sjdennis/bin/suffixes").readlines()]
+
+def addAffixes(word):
+	res = "xxx"
+	for  p in prefixes:
+		if word.startswith(p):
+			res = p + res
+			break
+	for s in suffixes:
+		if word.endswith(s):
+			res += s
+			break
+	if word[0].isupper():
+		res = "X" + res
+	return(res)
+
+try:
+	for line in sys.stdin:
+		toks = string.split(line)
+		for k in range(len(toks)):
+			if frequentWords.has_key(toks[k].lower()):
+				print toks[k],
+			else:
+				print addAffixes(toks[k]),
+		print
+
+except KeyboardInterrupt:
+	pass
+except IOError:
+	pass	# This script will often be used in a pipe which may be broken (e.g. quiting less)
+		# so we don't want to complain when this happens

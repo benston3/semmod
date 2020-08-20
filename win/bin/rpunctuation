@@ -1,0 +1,55 @@
+#!/usr/bin/python
+import sys,string
+from optparse import OptionParser
+
+# Set up the option parser
+
+parser = OptionParser()
+parser = OptionParser(usage="usage: rpunctuation [options] [args]", version="version 0.1", description="Replace all punctuation with a space character ' '. defaultList= '!','@','#','$','%','^','&','*','(',')','-','_',';',"'",'"','{','}',':',';','?','.', ',', '`','~', '[', ']'")
+parser.add_option("-n", "--no_space", action="store_true", dest="nospace", help="Delete all punctuation, does not leave a space character ' '", default=False)
+parser.add_option('-s','--stoplist', dest='stoplist', help='Name of punctuation Stop List file', default='None')
+
+(options, args) = parser.parse_args()
+
+defaultList=['!','@','#','$','%','^','&','*','(',')','-', '_',';',"'",'"','{','}',':',';','?','.', ',','`','~', '[', ']']
+#make punctuation stoplist
+
+#assign a replacement character
+space = ' '
+if options.nospace:
+  space = ''
+
+punctuationList = dict()
+# create stopList
+if options.stoplist != 'None':
+  stopListFile = open(options.stoplist, 'r')
+  stopListTmp = stopListFile.read()
+  stopListFile.close()
+
+  stopList = stopListTmp.split()
+  for items in stopList:
+    if not items in punctuationList:
+      punctuationList[items] = 1
+
+  del stopListFile, stopListTmp, stopList 
+else:
+  for items in defaultList:
+    punctuationList[items] = 1
+
+try:
+  for line in sys.stdin:
+    temp_line = ''
+    for character in line:
+      if not character in punctuationList:
+        temp_line += character
+      else:
+        temp_line += space
+
+    print temp_line,
+
+
+except KeyboardInterrupt:
+  pass
+except IOError:
+  pass	# This script will often be used in a pipe which may be broken (e.g. quiting less)
+		# so we don't want to complain when this happens

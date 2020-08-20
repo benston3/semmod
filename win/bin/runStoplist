@@ -1,0 +1,47 @@
+#!/usr/bin/python
+import sys,string
+from optparse import OptionParser
+
+
+# Set up the option parser
+
+parser = OptionParser()
+parser = OptionParser(usage="usage: runStopList [options] [args]", version="version 0.1", description="Remove words from a corpus using a stoplist. If the -s parameter is not included, defaults to remove words in 'stoplistfile'")
+parser.add_option('-s','--stoplist', dest='stoplist', help='Name of Stop List file', default='stoplistfile')
+
+(options, args) = parser.parse_args()
+
+removeWords = dict()
+
+# create stopList
+stopListFile = open(options.stoplist, 'r')
+stopListTmp = stopListFile.read()
+stopListFile.close()
+
+stopList = stopListTmp.split()
+for words in stopList:
+  if not words in removeWords:
+    removeWords[words] = 1
+
+del stopListFile, stopListTmp, stopList 
+
+
+try:
+  for line in sys.stdin:
+    wordList = []
+    for words in line.split():
+      word = words.replace("\n", "")
+
+      if len(word) > 0 and word not in removeWords:
+        wordList.append(word)
+  
+    newline = "%s\n" % (" ".join(wordList))
+    print newline,
+
+ 
+
+except KeyboardInterrupt:
+  pass
+except IOError:
+  pass	# This script will often be used in a pipe which may be broken (e.g. quiting less)
+		# so we don't want to complain when this happens

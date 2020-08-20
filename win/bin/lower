@@ -1,0 +1,25 @@
+#!/usr/bin/python
+import sys,string
+from optparse import OptionParser
+
+# Set up the option parser
+
+parser = OptionParser()
+parser.add_option("-u", "--upper", action="store_true", dest="upper", help="Return as all upper case.", default=False)
+
+(options, args) = parser.parse_args()
+
+
+# Print windows
+
+try:
+	for line in sys.stdin:
+		if options.upper:
+			print line.upper(),
+		else:
+			print line.lower(),
+except KeyboardInterrupt:
+	pass
+except IOError:
+	pass	# This script will often be used in a pipe which may be broken (e.g. quiting less)
+		# so we don't want to complain when this happens

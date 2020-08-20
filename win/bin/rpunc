@@ -1,0 +1,32 @@
+#!/usr/bin/python
+import sys,string
+from optparse import OptionParser
+
+# Set up the option parser
+
+parser = OptionParser()
+parser.add_option("-r", "--remove", action="store_true", dest="remove", help="Remove arg string.", default=False)
+
+(options, args) = parser.parse_args()
+
+
+# Print windows
+
+try:
+	for line in sys.stdin:
+		line = line.replace("<s> ", "")
+		line = line.replace(".", "")
+		line = line.replace("-", "")
+		line = line.replace(",", "")
+		line = line.replace("?", "")
+		line = line.replace("!", "")
+		line = line.replace("\"", "")
+		line = line.replace(":", "")
+		line = line.replace(";", "")
+		print line,
+
+except KeyboardInterrupt:
+	pass
+except IOError:
+	pass	# This script will often be used in a pipe which may be broken (e.g. quiting less)
+		# so we don't want to complain when this happens

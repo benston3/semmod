@@ -1,0 +1,24 @@
+#!/usr/bin/python
+import sys,string
+import shelve
+from optparse import OptionParser
+
+# Set up the option parser
+
+parser = OptionParser()
+parser.add_option("-u", "--upper", type="int", help="Retain lines with length tokens or less.", default=8)
+parser.add_option("-l", "--lower", type="int", help="Retain lines with no fewer than length tokens.", default=1)
+
+(options, args) = parser.parse_args()
+
+try:
+	for line in sys.stdin:
+		toks = string.split(line)
+		if len(toks) <= options.upper and len(toks) >= options.lower:
+			print line[:-1]
+
+except KeyboardInterrupt:
+	pass
+except IOError:
+	pass	# This script will often be used in a pipe which may be broken (e.g. quiting less)
+		# so we don't want to complain when this happens

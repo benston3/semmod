@@ -1,0 +1,91 @@
+#!/usr/bin/python
+import sys,string
+from optparse import OptionParser
+
+
+# Set up the option parser
+
+parser = OptionParser()
+parser = OptionParser(usage="usage: wordFreqMin [options] [args]", version="version 0.1", description="Set inclusion minimum for words in a corpus")
+parser.add_option('-i','--inclusion_minimum_word', type='int', dest='inclusion_minimum_word', help='Set inclusion minimum for words. For example, To remove words that appear in the corpus only once use -i1, or twice -i2. Defaults to -i0, so no words will be removed. ', default=0)
+
+(options, args) = parser.parse_args()
+
+def newDoc(line):
+  ret = False
+  if(line == "\n") or (line == "\r\n"):
+    ret = True
+
+  return ret
+
+corpusFile = []
+
+
+try:
+  for line in sys.stdin:
+    corpusFile.append(line)
+
+  corpusDict = dict()
+  lastDocument = 0
+  for lines in corpusFile:    
+    lineSplit = lines.split()
+    if len(lineSplit) == 0:
+      lastDocument += 1
+      #New Doc
+      pass
+    else:
+      for words in lineSplit:
+        if not words in corpusDict:
+        #corpusDict = [word, docNumber, lastDoc]
+          corpusDict[words] = [1,1, lastDocument]
+        else:
+          corpusDict[words][0] += 1
+          if corpusDict[words][2] != lastDocument:
+            corpusDict[words][1] += 1
+            corpusDict[words][2] = lastDocument
+
+  #print corpusDict
+  removeWords = dict()
+
+  for words in corpusDict:
+    #print words, repr(corpusDict[words])
+    if corpusDict[words][0] <= options.inclusion_minimum_word:
+      removeWords[words] = 1 
+  
+  #print options.inclusion_minimum_word
+  #print removeWords
+
+  #print corpusFile
+  lastNewDoc = False
+  for line in corpusFile: 
+    if newDoc(line):
+      if not lastNewDoc:
+        print
+        lastNewDoc = True
+
+    wordList = []
+    for words in line.split():
+      word = words.replace("\n", "")
+
+      if len(word) > 0 and word not in removeWords:
+        wordList.append(word)
+  
+    newline = "%s\n" % (" ".join(wordList))
+
+    if newDoc(newline):
+      if not lastNewDoc:
+        lastNewDoc = False
+      else:
+        lastNewDoc = True
+    else:
+      print newline,
+      lastNewDoc = False
+
+    del wordList
+
+
+except KeyboardInterrupt:
+  pass
+except IOError:
+  pass	# This script will often be used in a pipe which may be broken (e.g. quiting less)
+		# so we don't want to complain when this happens

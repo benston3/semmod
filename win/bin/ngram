@@ -1,0 +1,74 @@
+#!/usr/bin/python
+import sys,string
+from optparse import OptionParser
+
+# Set up the option parser
+
+sep = "-"
+parser = OptionParser()
+parser.add_option("-n", "--ngram-order", type="int", help="Specify the order of the ngrams to output.", default=sys.maxint)
+parser.add_option("-u", "--upper-order", type="int", help="Specify the upper order of the ngrams to output.", default=sys.maxint)
+parser.add_option("-l", "--lower-order", type="int", help="Specify the lower order of the ngrams to output.", default=sys.maxint)
+parser.add_option("-s", "--start", action="store_true", dest="start", help="Use a start of line token SS.", default=False)
+parser.add_option("-e", "--end", action="store_true", dest="end", help="Use an end of line token EE.", default=False)
+parser.add_option("-c", "--context", action="store_true", dest="context", help="""Prepend the token immediately before and the 
+token immediately after each ngram. Note: Unless you specific the -s and -e flags, setting this option means that the first and 
+last tokens on each line will not appear in an ngram.
+""", default=False)
+parser.add_option("-C", "--context2", action="store_true", dest="context2", help="""Prepend the token immediately before and the 
+token immediately after each ngram on separate lines. Note: Unless you specific the -s and -e flags, setting this option means that the first and 
+last tokens on each line will not appear in an ngram.
+""", default=False)
+parser.add_option("-a", "--context-after", action="store_true", dest="contextAfter", help="Put context after span rather than before.", default=False)
+
+(options, args) = parser.parse_args()
+
+
+# decode the ngram_order argument to determine which ngrams should be output
+
+lower_order = int(options.lower_order)
+upper_order = int(options.upper_order)
+ngram_order = int(options.ngram_order)
+
+if ngram_order == sys.maxint:
+	if lower_order == sys.maxint:
+		lower_order = 1
+else:
+	lower_order = ngram_order
+	upper_order = ngram_order
+
+
+# Print windows
+
+try:
+	for line in sys.stdin:
+		if options.start:
+			line = "SS " + line
+		if options.end:
+			line = line + " EE" 
+		toks = string.split(line)
+		if options.context:
+			for order in range(lower_order, min(upper_order+1, len(toks))):
+				for k in range(1,len(toks)-order):
+					if options.contextAfter:
+						print string.join(toks[k:k+order], sep) + " " + string.join([toks[k-1], toks[k+order]], ":")
+					else:
+						print string.join([toks[k-1], toks[k+order]], ":") + " " + string.join(toks[k:k+order], sep)
+		elif options.context2:
+			for order in range(lower_order, min(upper_order+1, len(toks))):
+				for k in range(1,len(toks)-order):
+					print toks[k-1] + "X" + " " + string.join(toks[k:k+order], sep)
+					print "X" + toks[k+order] + " " + string.join(toks[k:k+order], sep)
+		else:
+			for order in range(lower_order, min(upper_order+1, len(toks))):
+				if options.start and options.end:
+					for k in range(upper_order-order, len(toks)-upper_order+1):
+						print string.join(toks[k:k+order], sep)
+				else:
+					for k in range(len(toks)-order+1):
+						print string.join(toks[k:k+order], sep)
+except KeyboardInterrupt:
+	pass
+except IOError:
+	pass	# This script will often be used in a pipe which may be broken (e.g. quiting less)
+		# so we don't want to complain when this happens
